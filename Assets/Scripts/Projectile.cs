@@ -61,11 +61,10 @@ public class Projectile : MonoBehaviour
         var angle = _launchAngle * Mathf.PI / 180f;
         launchButton.interactable = false;
         Rigidbody sphere = GetComponent<Rigidbody>();
-        outputText.text = "Flying...";
+        outputText.text = "Launched!";
         hasBeenLaunched = true;
         launchPosition = transform.position;
         trail.emitting = true;
-        Debug.Log("Launching with force " + _launchForce);
         sphere.AddForce(new Vector3(0, _launchForce*Mathf.Sin(angle), _launchForce*Mathf.Cos(angle)), ForceMode.Force);
         launchArrow.SetActive(false);
         StartCoroutine("TimeoutLaunch");
@@ -82,7 +81,7 @@ public class Projectile : MonoBehaviour
         StopCoroutine("TimeoutLaunch");
         var displacement = transform.position.z - launchPosition.z;
         if(displacement > 0)
-            outputText.text = "Ball travelled " + (Mathf.Round(displacement * 100f) / 100f) + " m.";
+            outputText.text = "Ball travelled " + (Mathf.Round(displacement * 100f) / 100f) + " m horizontally.";
         hasBeenLaunched = false;
         trail.emitting = false;
     }
