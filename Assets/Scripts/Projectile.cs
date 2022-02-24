@@ -14,6 +14,8 @@ public class Projectile : MonoBehaviour
     private Vector3 initialPosition;
     private float _launchForce = 1400;
     private GameObject launchArrow;
+    private float launchTime;
+    private float peakHeight;
     public float launchForce {
         get {
             return _launchForce;
@@ -46,9 +48,9 @@ public class Projectile : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        peakHeight = Mathf.Max(peakHeight, transform.position.y - launchPosition.y);
     }
 
     IEnumerator TimeoutLaunch() {
@@ -63,7 +65,9 @@ public class Projectile : MonoBehaviour
         Rigidbody sphere = GetComponent<Rigidbody>();
         outputText.text = "Launched!";
         hasBeenLaunched = true;
+        launchTime = Time.time;
         launchPosition = transform.position;
+        peakHeight = 0;
         trail.emitting = true;
         sphere.AddForce(new Vector3(0, _launchForce*Mathf.Sin(angle), _launchForce*Mathf.Cos(angle)), ForceMode.Force);
         launchArrow.SetActive(false);
@@ -76,12 +80,23 @@ public class Projectile : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
     }
 
+    static float RoundToTwoDecimals(float f) {
+        return Mathf.Round(f * 100f) / 100f;
+    }
+
     public void FinishLaunch() {
         FreezeProjectile();
         StopCoroutine("TimeoutLaunch");
         var displacement = transform.position.z - launchPosition.z;
+        var timeInAir = Time.time - launchTime;
         if(displacement > 0)
-            outputText.text = "Ball travelled " + (Mathf.Round(displacement * 100f) / 100f) + " m horizontally.";
+            outputText.text = "Ball travelled "
+                + RoundToTwoDecimals(displacement)
+                + " m horizontally for "
+                + RoundToTwoDecimals(timeInAir)
+                + " seconds. Peak height was "
+                + RoundToTwoDecimals(peakHeight)
+                + " m.";
         hasBeenLaunched = false;
         trail.emitting = false;
     }
